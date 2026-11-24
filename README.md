@@ -18,6 +18,12 @@
 go test ./...
 ```
 
+## 边界判据
+
+- 采样器身份按完整 `Sampler` 判等：`WrapU`、`WrapV`、`Filter`、`Anisotropy` 任一不同即为不同状态，各占独立物理槽。因此 4 与 5 两档各向异性不合并，避免静默吞掉档位差异。
+- 热重载（`ReloadMaterial`）释放且引用归零的槽进入待回收列表，本帧绘制列表仍可安全引用；`EndFrame` 之后这些下标才可重新分配。普通 `Unbind` 释放的槽无在帧引用，引用归零后立即可复用。
+- 分配始终从 0 开始取当前空闲且不在待回收列表中的最小下标；待回收槽不计入 `PhysicalSlots`，但会计入 `PendingReclaim`。
+
 ## 模块与包
 
 - 模块路径：`gsb/batch48-go-game-b-16`
